@@ -1,3 +1,3 @@
 #!/bin/bash
 
-gcc main.c executor.c tokenizer.c -o myshell
+gcc src/main.c src/executor.c src/tokenizer.c src/builtin.c src/shell.c -Isrc/include -o myshell
