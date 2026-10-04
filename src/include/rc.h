@@ -11,6 +11,7 @@ enum return_code_e
 	RETURN_CODE__REALLOC_FAILED,
 	RETURN_CODE__COULDNT_FIND_COMMAND,
 	RETURN_CODE__COMMAND_DOES_NOT_EXIST,
+	RETURN_CODE__WRONG_NUMBER_OF_PARAMS,
 
 	RETURN_CODE__GETS_FAILED,
     RETURN_CODE__PIPE_FAILED,
@@ -22,8 +23,8 @@ enum return_code_e
 	RETURN_CODE__STRNCPY_FAILED,
 	RETURN_CODE__INVALID_ARGUMENT,
 	RETURN_CODE__CHDIR_FAILED,
-	
-
+	RETURN_CODE__NOT_BUILTIN,
+	RETURN_CODE__REALPATH_FAILED,
 
 };
 
@@ -36,6 +37,15 @@ typedef enum return_code_e rc_t;
 		if ((__condition)) \
 		{ \
 			rc = __return_code_value; \
+			goto cleanup; \
+		} \
+	} while (0)
+
+#define CLEANUP_NON_SUCCESS(__rc) \
+	do \
+	{ \
+		if ((RETURN_CODE__SUCCESS != __rc)) \
+		{ \
 			goto cleanup; \
 		} \
 	} while (0)

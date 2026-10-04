@@ -7,12 +7,13 @@
 #include "rc.h"
 #include "tokenizer.h"
 #include "executor.h"
+#include "builtin.h"
 
-#define BUFFER_SIZE 1024
+#define READ_BUFFER_SIZE (1024)
 
 bool process_single_line()
 {
-    char buff[BUFFER_SIZE] = { 0 };
+    char buff[READ_BUFFER_SIZE] = { 0 };
     char** tokens = NULL;
     size_t tokens_size = 0;
     char* gets_ret = NULL;
@@ -29,13 +30,21 @@ bool process_single_line()
     }
 
     rc = TOKENIZER__split_by_space(buff, &tokens, &tokens_size);
-    CLEANUP_IF_TRUE((RETURN_CODE__SUCCESS != rc), rc);
+    CLEANUP_NON_SUCCESS(rc);
 
     if (tokens_size > 0)
-    {
-        rc = EXECUTOR__execute_command(tokens, tokens_size);
-        CLEANUP_IF_TRUE((RETURN_CODE__SUCCESS != rc), rc);
-    }
+        {
+            rc = BUILTIN__execute_command(tokens, tokens_size);
+            if (RETURN_CODE__COMMAND_DOES_NOT_EXIST == rc)
+            {
+                rc = EXECUTOR__execute_command(tokens, tokens_size);
+                CLEANUP_NON_SUCCESS(rc);
+            }
+            else
+            {
+                CLEANUP_NON_SUCCESS(rc);
+            }
+        }
 
     rc = RETURN_CODE__SUCCESS;
 
@@ -57,9 +66,13 @@ cleanup:
 
 int main()
 {
+    rc_t rc = SHELL__init_state();
+    CLEANUP_NON_SUCCESS(rc);
+
     while (process_single_line())
     {
     }
 
-    return 0;
+cleanup:
+    return rc;
 }

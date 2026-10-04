@@ -9,7 +9,7 @@
 #include "executor.h"
 #include "rc.h"
 
-#define BUFFER_SIZE 1024
+#define READ_BUFFER_SIZE (1024)
 
 rc_t EXECUTOR__execute_command(char** tokens, size_t tokens_size)
 {
@@ -17,7 +17,7 @@ rc_t EXECUTOR__execute_command(char** tokens, size_t tokens_size)
     char** argv = NULL;
     int pipefd[2] = { 0, 0};
     pid_t child_pid = 0;
-    char buffer_read[BUFFER_SIZE] = { 0 };
+    char buffer_read[READ_BUFFER_SIZE] = { 0 };
     ssize_t read_size = 0;
     size_t i = 0;
     size_t j = 0;
@@ -60,7 +60,7 @@ rc_t EXECUTOR__execute_command(char** tokens, size_t tokens_size)
             read_size = read(pipefd[0], buffer_read + i, 1);
             CLEANUP_IF_TRUE((read_size < 0), RETURN_CODE__READ_FAILED);
 
-            if (read_size == 0 || i >= BUFFER_SIZE - 1)
+            if (read_size == 0 || i >= READ_BUFFER_SIZE - 1)
             {
                 break;
             }

@@ -3,12 +3,12 @@
 #include <unistd.h>
 #include <sys/types.h>
 
-#define BUFFER_SIZE 1024
+#define READ_BUFFER_SIZE 1024
 
 int main()
 {
     int i = 0;
-    char buffer_read[BUFFER_SIZE] = {0};
+    char buffer_read[READ_BUFFER_SIZE] = {0};
 
     printf("HELLO 1\n");
 

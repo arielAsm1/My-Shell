@@ -11,7 +11,7 @@ rc_t SHELL__init_state()
     rc_t rc = RETURN_CODE__UNINITIALIZED;
     char * cwd = NULL;
 
-    cwd = getcwd(&g_current_state.current_working_dir, MAX_PATH_SZIE);
+    cwd = getcwd(&g_current_state.current_working_dir, MAX_PATH_NAME);
     CLEANUP_IF_TRUE((NULL == cwd), RETURN_CODE__GETCWD_FAILED);
 
     rc = RETURN_CODE__SUCCESS;
@@ -26,9 +26,9 @@ rc_t SHELL__set_cwd(char * path)
     char * str = NULL;
     int ret_val = -1;
 
-    str = strncpy(g_current_state.current_working_dir, path, MAX_PATH_SZIE - 1);
+    str = strncpy(g_current_state.current_working_dir, path, MAX_PATH_NAME - 1);
     CLEANUP_IF_TRUE((NULL == str), RETURN_CODE__STRNCPY_FAILED);
-    g_current_state.current_working_dir[MAX_PATH_SZIE - 1] = '\0';
+    g_current_state.current_working_dir[MAX_PATH_NAME - 1] = '\0';
 
     ret_val = chdir(g_current_state.current_working_dir);
     CLEANUP_IF_TRUE((0 > ret_val), RETURN_CODE__CHDIR_FAILED);

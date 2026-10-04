@@ -3,11 +3,11 @@
 
 #include "rc.h"
 
-#define MAX_PATH_SZIE (2048)
+#define MAX_PATH_NAME (2048)
 
 struct shell_state_s
 {
-    char current_working_dir[MAX_PATH_SZIE];
+    char current_working_dir[MAX_PATH_NAME];
 };
 
 rc_t SHELL__init_state();
