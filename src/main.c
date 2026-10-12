@@ -64,9 +64,9 @@ cleanup:
     return should_continue;
 }
 
-int main()
+int main(int argc, char *argv[], char *envp[])
 {
-    rc_t rc = SHELL__init_state();
+    rc_t rc = SHELL__init_state(envp);
     CLEANUP_NON_SUCCESS(rc);
 
     while (process_single_line())
