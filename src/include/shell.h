@@ -23,5 +23,6 @@ rc_t SHELL__init_state(char * env[]);
 rc_t SHELL__set_cwd(char * path);
 rc_t SHELL__get_cwd(char * get_cwd);
 rc_t SHELL__get_env(char * key, char ** output_val);
+rc_t SHELL__env_vars(char ** tokens, size_t size);
 
 #endif

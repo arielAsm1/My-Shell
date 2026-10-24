@@ -11,6 +11,7 @@ struct cd_params_s
     char change_dir[MAX_PATH_NAME];
 };
 
+
 // builds the struct
 rc_t prepare_cd_params(char ** tokens, size_t tokens_size, void ** parsed_parameters)
 {
@@ -107,7 +108,51 @@ cleanup:
     return rc;
 }
 
-struct builtin_command_s g_commands[] = {
+
+struct exit_params_s
+{
+    int exit_rc;
+};
+
+rc_t prepare_exit_params(char ** tokens, size_t tokens_size, void ** parsed_parameters)
+{
+    rc_t rc = RETURN_CODE__UNINITIALIZED;
+    struct exit_params_s * exit_params = NULL;
+
+    CLEANUP_IF_TRUE((NULL == tokens) || (NULL == parsed_parameters) , RETURN_CODE__NULL_PARAM);
+
+    CLEANUP_IF_TRUE((2 < tokens_size), RETURN_CODE__WRONG_NUMBER_OF_PARAMS);
+
+    exit_params = (struct exit_params_s *)malloc(sizeof(struct exit_params_s));
+    CLEANUP_IF_TRUE((NULL == exit_params), RETURN_CODE__MALLOC_FAILED);
+
+    exit_params->exit_rc = (1 == tokens_size) ? 0 : atoi(tokens[1]);
+    *parsed_parameters = (void *)exit_params;
+
+    rc = RETURN_CODE__SUCCESS;
+
+cleanup:
+    return rc;
+}
+
+rc_t handle_exit(void * param)
+{
+    rc_t rc = RETURN_CODE__UNINITIALIZED;
+    struct exit_params_s * exit_params = NULL;
+
+    CLEANUP_IF_TRUE((NULL == param), RETURN_CODE__NULL_PARAM);
+
+    exit_params = (struct exit_params_s *)param;
+
+    exit(exit_params->exit_rc);
+
+    rc = RETURN_CODE__SUCCESS;
+
+cleanup:
+    return rc;
+}
+
+static struct builtin_command_s g_commands[] = {
     {
         .name = "cd",
         .execute_command = handle_cd,
@@ -117,6 +162,11 @@ struct builtin_command_s g_commands[] = {
         .name = "pwd",
         .execute_command = handle_pwd,
         .prepare_arguments = prepare_pwd_params,
+    },
+    {
+        .name = "exit",
+        .execute_command = handle_exit,
+        .prepare_arguments = prepare_exit_params,
     }
 };
 

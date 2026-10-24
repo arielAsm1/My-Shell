@@ -88,7 +88,7 @@ rc_t EXECUTOR__execute_command(char** tokens, size_t tokens_size)
             FD_SET(STDIN_FILENO, &readfds);
             FD_SET(stdout_pipe[0], &readfds);
 
-            max_fd = STDIN_FILENO;
+            max_fd = 0;
             if(stdout_pipe[0] > max_fd)
             {
                 max_fd = stdout_pipe[0];
