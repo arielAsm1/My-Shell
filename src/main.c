@@ -8,6 +8,7 @@
 #include "tokenizer.h"
 #include "executor.h"
 #include "builtin.h"
+#include "shell.h"
 
 #define READ_BUFFER_SIZE (1024)
 

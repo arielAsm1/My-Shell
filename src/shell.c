@@ -121,3 +121,27 @@ rc_t SHELL__get_cwd(char * get_cwd)
 cleanup:
     return rc;
 }
+
+rc_t SHELL__get_env(char * key, char ** output_val)
+{
+    rc_t rc = RETURN_CODE__UNINITIALIZED;
+    size_t i = 0;
+
+    CLEANUP_IF_TRUE((NULL == key) || (NULL == output_val), RETURN_CODE__NULL_PARAM);    
+
+    *output_val = NULL;
+
+    for(i = 0; i < g_current_state.env_count; i++)
+    {
+        if(0 == strcmp(g_current_state.env_vars[i]->key, key))
+        {
+            *output_val = g_current_state.env_vars[i]->val;
+            break;
+        }
+    }
+
+    rc = RETURN_CODE__SUCCESS;
+
+cleanup:
+    return rc;
+}

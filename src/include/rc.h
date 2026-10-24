@@ -26,6 +26,10 @@ enum return_code_e
 	RETURN_CODE__NOT_BUILTIN,
 	RETURN_CODE__REALPATH_FAILED,
 	RETURN_CODE__STRCHR_FAILED,
+	RETURN_CODE__SELECT_FAILED,
+    RETURN_CODE__WRITE_FAILED,
+    RETURN_CODE__DUP2_FAILED,
+    RETURN_CODE__CLOSE_FAILED
 
 };
 
@@ -50,5 +54,14 @@ typedef enum return_code_e rc_t;
 			goto cleanup; \
 		} \
 	} while (0)
+
+#define EXIT_IF_TRUE(__condition, __return_code_value) \
+	do \
+	{ \
+		if ((__condition)) \
+		{ \
+			(void)exit(__return_code_value); \
+		} \
+	} while(0)
 
 #endif
