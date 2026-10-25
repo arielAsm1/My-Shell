@@ -232,3 +232,57 @@ rc_t SHELL__env_vars(char ** tokens, size_t size)
 cleanup:
 	return rc;
 }
+
+rc_t SHELL__build_envp(char *** output_envp)
+{
+    rc_t rc = RETURN_CODE__UNINITIALIZED;
+    char ** envp = NULL;
+    char * str = NULL;
+    size_t i = 0;
+    size_t j = 0;
+    size_t key_len = 0;
+    size_t val_len = 0;
+
+    CLEANUP_IF_TRUE((NULL == output_envp), RETURN_CODE__NULL_PARAM);
+
+    envp = (char **)malloc((g_current_state.env_count + 1) * sizeof(char *));
+    CLEANUP_IF_TRUE((NULL == envp), RETURN_CODE__MALLOC_FAILED);
+
+    for (i = 0; i < g_current_state.env_count; i++)
+    {
+        key_len = strlen(g_current_state.env_vars[i]->key);
+        val_len = strlen(g_current_state.env_vars[i]->val);
+        
+        envp[i] = (char *)malloc((key_len + val_len + 2) * sizeof(char));
+        CLEANUP_IF_TRUE((NULL == envp[i]), RETURN_CODE__MALLOC_FAILED);
+
+        str = strncpy(envp[i], g_current_state.env_vars[i]->key, key_len + 1);
+        CLEANUP_IF_TRUE((NULL == str), RETURN_CODE__STRNCPY_FAILED);
+        
+        str = strncat(envp[i], "=", 2);
+        str = strncat(envp[i], g_current_state.env_vars[i]->val, val_len + 1);
+    }
+    
+    envp[g_current_state.env_count] = NULL;
+    *output_envp = envp;
+    
+    rc = RETURN_CODE__SUCCESS;
+
+cleanup:
+    if (RETURN_CODE__SUCCESS != rc)
+    {
+        if (NULL != envp)
+        {
+            for (j = 0; j < i; j++)
+            {
+                if (NULL != envp[j])
+                {
+                    free(envp[j]);
+                }
+            }
+            free(envp);
+        }
+    }
+    
+    return rc;
+}
