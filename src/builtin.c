@@ -152,6 +152,43 @@ cleanup:
     return rc;
 }
 
+rc_t prepare_env_params(char ** tokens, size_t tokens_size, void ** parsed_parameters)
+{
+    rc_t rc = RETURN_CODE__UNINITIALIZED;
+
+    CLEANUP_IF_TRUE((NULL == tokens), RETURN_CODE__NULL_PARAM);
+
+    CLEANUP_IF_TRUE((1 != tokens_size), RETURN_CODE__WRONG_NUMBER_OF_PARAMS);
+
+    *parsed_parameters = NULL;
+    rc = RETURN_CODE__SUCCESS;
+
+cleanup:
+    return rc;
+    
+}
+
+static rc_t handle_env(void * param)
+{
+    rc_t rc = RETURN_CODE__UNINITIALIZED;
+    size_t i = 0;
+    char ** envp = NULL;
+
+    rc = SHELL__export_env(&envp);
+    CLEANUP_NON_SUCCESS(rc);
+
+    while(envp[i] != NULL)
+    {
+        printf("%s\n", envp[i]);
+        i++;
+    }
+
+    rc = RETURN_CODE__SUCCESS;
+
+cleanup:
+    return rc;
+}
+
 static struct builtin_command_s g_commands[] = {
     {
         .name = "cd",
@@ -167,7 +204,12 @@ static struct builtin_command_s g_commands[] = {
         .name = "exit",
         .execute_command = handle_exit,
         .prepare_arguments = prepare_exit_params,
-    }
+    },
+    {
+        .name = "env",
+        .execute_command = handle_env,
+        .prepare_arguments = prepare_env_params,
+    },
 };
 
 rc_t BUILTIN__execute_command(char ** tokens, size_t tokens_size)
