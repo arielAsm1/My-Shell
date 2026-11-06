@@ -5,7 +5,7 @@
 #include <stdbool.h>
 
 #include "rc.h"
-#include "tokenizer.h"
+#include "lexer.h"
 #include "executor.h"
 #include "builtin.h"
 #include "shell.h"
@@ -24,22 +24,25 @@ bool process_single_line()
     gets_ret = gets(buff);
     CLEANUP_IF_TRUE((NULL == gets_ret), RETURN_CODE__GETS_FAILED);
 
-    rc = TOKENIZER__split_by_space(buff, &tokens, &tokens_size);
+    rc = LEXER__split(buff, &tokens, &tokens_size);
     CLEANUP_NON_SUCCESS(rc);
 
     if (tokens_size > 0)
+    {
+        rc = SHELL__env_vars(tokens, tokens_size);
+        CLEANUP_NON_SUCCESS(rc);
+
+        rc = BUILTIN__execute_command(tokens, tokens_size);
+        if (RETURN_CODE__COMMAND_DOES_NOT_EXIST == rc)
         {
-            rc = BUILTIN__execute_command(tokens, tokens_size);
-            if (RETURN_CODE__COMMAND_DOES_NOT_EXIST == rc)
-            {
-                rc = EXECUTOR__execute_command(tokens, tokens_size);
-                CLEANUP_NON_SUCCESS(rc);
-            }
-            else
-            {
-                CLEANUP_NON_SUCCESS(rc);
-            }
+            rc = EXECUTOR__execute_command(tokens, tokens_size);
+            CLEANUP_NON_SUCCESS(rc);
         }
+        else
+        {
+            CLEANUP_NON_SUCCESS(rc);
+        }
+    }
 
     rc = RETURN_CODE__SUCCESS;
 
@@ -54,7 +57,7 @@ cleanup:
         should_continue = false;
     }
 
-    TOKENIZER__free_tokens(tokens, tokens_size);
+    LEXER__free_tokens(tokens, tokens_size);
 
     return should_continue;
 }

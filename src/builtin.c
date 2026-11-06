@@ -189,6 +189,58 @@ cleanup:
     return rc;
 }
 
+struct export_params_s
+{
+    char * env_str;
+};
+
+rc_t prepare_export_params(char ** tokens, size_t tokens_size, void ** parsed_parameters)
+{
+    rc_t rc = RETURN_CODE__UNINITIALIZED;
+    struct export_params_s * export_params = NULL;
+
+    CLEANUP_IF_TRUE((NULL == tokens) || (NULL == parsed_parameters) , RETURN_CODE__NULL_PARAM);
+    CLEANUP_IF_TRUE((2 > tokens_size), RETURN_CODE__WRONG_NUMBER_OF_PARAMS);
+
+    export_params = (struct export_params_s *)malloc(sizeof(struct export_params_s));
+    CLEANUP_IF_TRUE((NULL == export_params), RETURN_CODE__MALLOC_FAILED);
+
+    export_params->env_str = strdup(tokens[1]);
+    CLEANUP_IF_TRUE((NULL == export_params->env_str), RETURN_CODE__STRDUP_FAILED);
+
+    *parsed_parameters = (void *)export_params;
+    rc = RETURN_CODE__SUCCESS;
+
+cleanup:
+    return rc;
+}
+
+rc_t handle_export(void * param)
+{
+    rc_t rc = RETURN_CODE__UNINITIALIZED;
+    struct export_params_s * export_params = NULL;
+
+    CLEANUP_IF_TRUE((NULL == param), RETURN_CODE__NULL_PARAM);
+
+    export_params = (struct export_params_s *)param;
+
+    rc = SHELL__set_env(export_params->env_str);
+    CLEANUP_NON_SUCCESS(rc);
+
+    rc = RETURN_CODE__SUCCESS;
+
+cleanup:
+    if(NULL != export_params)
+    {
+        if(NULL != export_params->env_str)
+        {
+            free(export_params->env_str);
+        }
+        free(export_params);
+    }
+    return rc;
+}
+
 static struct builtin_command_s g_commands[] = {
     {
         .name = "cd",
@@ -209,6 +261,11 @@ static struct builtin_command_s g_commands[] = {
         .name = "env",
         .execute_command = handle_env,
         .prepare_arguments = prepare_env_params,
+    },
+    {
+        .name = "export",
+        .execute_command = handle_export,
+        .prepare_arguments = prepare_export_params,
     },
 };
 

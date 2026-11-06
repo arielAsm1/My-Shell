@@ -273,3 +273,61 @@ cleanup:
     
     return rc;
 }
+
+rc_t SHELL__set_env(char * env_str)
+{
+    rc_t rc = RETURN_CODE__UNINITIALIZED;
+    struct envoirement_s * new_env = NULL;
+    size_t i = 0;
+    int found = 0;
+    struct envoirement_s ** realloc_ptr = NULL;
+
+    CLEANUP_IF_TRUE((NULL == env_str), RETURN_CODE__INVALID_ARGUMENT);
+
+    rc = parse_single_env(env_str, &new_env);
+    CLEANUP_NON_SUCCESS(rc);
+
+    for(i = 0; i < g_current_state.env_count; i++)
+    {
+        if(0 == strcmp(g_current_state.env_vars[i]->key, new_env->key))
+        {
+            free(g_current_state.env_vars[i]->val);
+            g_current_state.env_vars[i]->val = new_env->val;
+
+            free(new_env->key);
+            free(new_env);
+            new_env = NULL;
+            found = 1;
+            break;
+        }
+    }
+
+    if(0 == found)
+    {
+        realloc_ptr = (struct envoirement_s **)realloc(g_current_state.env_vars, (g_current_state.env_count + 1) * sizeof(struct envoirement_s *));
+        CLEANUP_IF_TRUE((NULL == realloc_ptr), RETURN_CODE__REALLOC_FAILED);
+        
+        g_current_state.env_vars = realloc_ptr;
+        g_current_state.env_vars[g_current_state.env_count] = new_env;
+        g_current_state.env_count++;
+    }
+
+    rc = RETURN_CODE__SUCCESS;
+
+cleanup:
+    if(RETURN_CODE__SUCCESS != rc && NULL != new_env)
+    {
+        if(NULL != new_env->key) 
+        {
+            free(new_env->key);
+        }
+
+        if(NULL != new_env->val) 
+        {
+            free(new_env->val);
+        }
+        
+        free(new_env);
+    }
+    return rc;
+}

@@ -2,10 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "tokenizer.h"
+#include "lexer.h"
 #include "shell.h"
 
-rc_t TOKENIZER__split_by_space(char* command, char*** output, size_t* size)
+rc_t LEXER__split(char* command, char*** output, size_t* size)
 {
 	rc_t rc = RETURN_CODE__UNINITIALIZED;
 	char** local_output = NULL;
@@ -15,15 +15,17 @@ rc_t TOKENIZER__split_by_space(char* command, char*** output, size_t* size)
 	char * token = NULL;
 	size_t current_token_size = 0;
 	char** realloc_return_value = NULL;
-	
+	int in_quote = 0;
+
 	CLEANUP_IF_TRUE((NULL == command) || (NULL == output) || (NULL == size), RETURN_CODE__NULL_PARAM);
 
 	iter = command;
 	while (1)
 	{
-		start = iter;
-		while ((*iter != ' ') && (*iter != '\0'))
+		start = iter;                                                                         
+		while (((*iter != ' ') && (in_quote != 1)) && (*iter != '\0'))
 		{
+			in_quote = 1 - in_quote;
 			iter++;
 		}
 		
@@ -68,7 +70,7 @@ cleanup:
 }
 
 
-void TOKENIZER__free_tokens(char** tokens, size_t size)
+void LEXER__free_tokens(char** tokens, size_t size)
 {
     if (NULL == tokens)
     {
