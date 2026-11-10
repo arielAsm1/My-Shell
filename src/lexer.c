@@ -6,6 +6,71 @@
 #include "lexer.h"
 #include "shell.h"
 
+rc_t LEXER__extract_clean_token(const char* start, const char* end, char** output)
+{
+    rc_t rc = RETURN_CODE__UNINITIALIZED;
+    char* local_output = NULL;
+    size_t max_size = 0;
+    size_t i = 0;
+    const char* iter = NULL;
+
+    CLEANUP_IF_TRUE((NULL == start) || (NULL == end) || (NULL == output) || (start > end), RETURN_CODE__NULL_PARAM);
+
+    max_size = end - start;
+    local_output = (char*)malloc((max_size + 1) * sizeof(char));
+    CLEANUP_IF_TRUE((NULL == local_output), RETURN_CODE__MALLOC_FAILED);
+
+    iter = start;
+    while (iter < end)
+    {
+        if (*iter != '"')
+        {
+            local_output[i] = *iter;
+            i++;
+        }
+        iter++;
+    }
+    local_output[i] = '\0';
+
+    *output = local_output;
+    rc = RETURN_CODE__SUCCESS;
+
+cleanup:
+    return rc;
+}
+
+rc_t LEXER__split(char* command, char*** output, size_t* size)
+{
+	rc_t rc = RETURN_CODE__UNINITIALIZED;
+	size_t i = 0;
+	size_t local_size = 0;
+	ptrdiff_t current_token_size = 0;
+	char * local_token = NULL;
+	char ** realloc_ptr = NULL;
+	char * tmp = NULL;
+	char * iter = NULL;
+	char * token_start = NULL;
+	char * token = NULL;
+	char ** local_output = NULL;
+	char * first_char_after_quote_pos = NULL;
+	int is_quote = 0;
+
+	token_start = command;
+	iter = command;
+	while(1)
+	{
+		
+	}
+
+	*size = local_size;
+	*output = local_output;
+
+	rc = RETURN_CODE__SUCCESS;
+
+cleanup:
+	return rc;
+}
+
 rc_t LEXER__split(char* command, char*** output, size_t* size)
 {
 	rc_t rc = RETURN_CODE__UNINITIALIZED;
